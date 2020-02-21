@@ -1,0 +1,19 @@
+all:
+  vars:
+    username: admin
+    password: cisco.123
+  sites:
+    - name: sample
+      hosts:
+        - hostname: D9
+          host: 10.225.252.232
+          device_type: cisco_xr
+        - hostname: D1
+          host: 10.225.252.235
+          device_type: cisco_nxos
+        - hostname: D7
+          host: 10.225.252.228
+          device_type: cisco_xe
+
+
+

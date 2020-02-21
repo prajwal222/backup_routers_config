@@ -4,8 +4,8 @@ import yaml
 import time
 from operator import itemgetter
 
-logger = logger_setup('expedia_backup.log', '%(asctime)s: %(name)s: %(levelname)s: %(message)s', name="backuplog")
-with RtrBackup(testbed_yaml="testbed/expedia_topo.yaml") as backup:
+logger = logger_setup('sample_backup.log', '%(asctime)s: %(name)s: %(levelname)s: %(message)s', name="backuplog")
+with RtrBackup(testbed_yaml="testbed/sample_topo.yaml") as backup:
     testbed = yaml.safe_load(open("testbed/expedia_topo.yaml"))
     host_list = testbed['all']['sites'][0]['hosts']
     device_list = list(map(itemgetter('hostname'), host_list))

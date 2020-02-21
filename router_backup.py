@@ -1,3 +1,4 @@
+#   Base class for router backup
 from netmiko import ConnectHandler
 from copy import deepcopy
 import yaml
@@ -9,6 +10,9 @@ import sys
 
 
 def logger_setup(filename, formatting, name="__main__"):
+    """
+            Provides logger setup
+    """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter(formatting)
@@ -70,7 +74,7 @@ class RtrBackup:
 
     def login(self, device_name):
         """
-        Logs in to the ios device; change device_type to 'cisco_nxos' if device is nexus. Refer netmiko git link above
+        Logs in to the network device
         :return: True or False
         """
         device = next((item for item in self.host_dict if item.get('hostname') == device_name))
@@ -99,7 +103,7 @@ class RtrBackup:
 
     def run(self, command):
         """
-        Runs show runn command and returns output as list
+        Runs command and returns output as list
         """
         try:
             output = self.session.send_command(command)
@@ -117,6 +121,9 @@ class RtrBackup:
             return None
 
     def get_hostname(self):
+        """
+                Get the hostname configured on device
+        """
         prompt = self.session.find_prompt()
         backup_logger.info(f"Getting hostname configured for {self.current_device}:")
         hostname_configured = re.search(r'.*?:?([\w\-_]*)#', prompt, re.MULTILINE).group(1)

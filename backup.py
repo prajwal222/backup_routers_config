@@ -3,10 +3,12 @@ from router_backup import logger_setup
 import yaml
 import time
 from operator import itemgetter
+import sys
 
 logger = logger_setup('router_backup.log', '%(asctime)s: %(name)s: %(levelname)s: %(message)s', name="backuplog")
-with RtrBackup(testbed_yaml="testbed/sample_topo.yaml") as backup:
-    testbed = yaml.safe_load(open("testbed/sample_topo.yaml"))
+topo_file = sys.argv[1]
+with RtrBackup(testbed_yaml=topo_file) as backup:
+    testbed = yaml.safe_load(open(topo_file))
     host_list = testbed['all']['sites'][0]['hosts']
     device_list = list(map(itemgetter('hostname'), host_list))
     # device_list = ['N9k-Mgmt-SE-2']

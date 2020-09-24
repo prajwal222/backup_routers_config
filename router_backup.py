@@ -101,6 +101,12 @@ class RtrBackup:
         """
         self.session.disconnect()
 
+    def get_command(self):
+        conf_dict = {'juniper_junos': 'show configuration | no-more',
+                     'alcatel_sros': 'admin display-config'}
+        get_conf_command = conf_dict.get(self.session.device_type)
+        return get_conf_command or "show running-config"
+
     def run(self, command):
         """
         Runs command and returns output as list
@@ -126,7 +132,7 @@ class RtrBackup:
         """
         prompt = self.session.find_prompt()
         backup_logger.info(f"Getting hostname configured for {self.current_device}:")
-        hostname_configured = re.search(r'.*?:?([\w\-_]*)#', prompt, re.MULTILINE).group(1)
+        hostname_configured = re.search(r'.*?[:@]?([\w\-_]*)[#>]', prompt, re.MULTILINE).group(1)
         self.hostname = hostname_configured
 
     def writer(self, result, date, directory):

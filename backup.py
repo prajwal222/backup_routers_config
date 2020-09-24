@@ -4,7 +4,7 @@ import yaml
 import time
 from operator import itemgetter
 
-logger = logger_setup('sample_backup.log', '%(asctime)s: %(name)s: %(levelname)s: %(message)s', name="backuplog")
+logger = logger_setup('router_backup.log', '%(asctime)s: %(name)s: %(levelname)s: %(message)s', name="backuplog")
 with RtrBackup(testbed_yaml="testbed/sample_topo.yaml") as backup:
     testbed = yaml.safe_load(open("testbed/sample_topo.yaml"))
     host_list = testbed['all']['sites'][0]['hosts']

@@ -7,7 +7,6 @@ import sys
 import argparse
 
 time_stamp = time.strftime("%Y-%m-%d")
-backup_logger.info(f'\n\n**************************Script execution started at {time_stamp}**************************')
 
 parser = argparse.ArgumentParser(description='Save the current running config of the device in a file.\n'
                                              'Use a YAML file for host information')
@@ -24,6 +23,8 @@ backup_host = args.host
 backup_site = args.site
 
 with RtrBackup(testbed_yaml=topo_file) as backup:
+    backup_logger.info(
+        f'\n\n**************************Script execution started at {time_stamp}**************************')
     testbed = yaml.safe_load(open(topo_file))
     host_list = []
     if backup_site:

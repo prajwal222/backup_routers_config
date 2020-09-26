@@ -25,16 +25,17 @@ backup_site = args.site
 
 with RtrBackup(testbed_yaml=topo_file) as backup:
     testbed = yaml.safe_load(open(topo_file))
+    host_list = []
     if backup_site:
         try:
             sites = [item for item in testbed['all']['sites'] if item.get('name') in backup_site]
             if not sites:
                 raise StopIteration
-            host_list = []
             for site in sites:
                 host_list.extend(site['hosts'])
         except StopIteration as e:
-            backup_logger.exception(f"Exception occurred. Please check site name. Skipping back up {e}")
+            backup_logger.exception(f"Exception occurred. Please check site name \"{backup_site}\". "
+                                    f"Skipping back up {e}")
             sys.exit()
     else:
         host_list = testbed['all']['sites'][0]['hosts'] if not backup_host else None

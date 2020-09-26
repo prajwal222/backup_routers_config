@@ -78,7 +78,11 @@ class RtrBackup:
         Logs in to the network device
         :return: True or False
         """
-        device = next((item for item in self.host_dict if item.get('hostname') == device_name))
+        try:
+            device = next((item for item in self.host_dict if item.get('hostname') == device_name))
+        except StopIteration:
+            backup_logger.exception(f"Exception occurred. Please check hostname \"{device_name}\". Skipping back up")
+            return
         backup_logger.info(f"Logging into {device['host']}")
         hostname = device.pop("hostname")
         logged_in = False

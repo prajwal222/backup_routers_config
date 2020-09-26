@@ -11,8 +11,8 @@ logger = logger_setup('router_backup.log', '%(asctime)s: %(name)s: %(levelname)s
 
 parser = argparse.ArgumentParser(description='Save the current running config of the device in a file.\n'
                                              'Use a YAML file for host information')
-parser.add_argument("-t", "--topo", type=str, metavar="", help='Location of the topology YAML file')
-parser.add_argument("-l", "--loc", type=str, metavar="", help='Location of the backup folder')
+parser.add_argument("-t", "--topo", type=str, metavar="", help='Location of the topology YAML file', required=True)
+parser.add_argument("-l", "--loc", type=str, metavar="", help='Location of the backup folder', required=True)
 parser.add_argument("-H", "--host", type=str, nargs='+', metavar="", help='Hostnames, if backing up a '
                                                                           'particular list of hosts')
 parser.add_argument("-s", "--site", type=str, nargs='+', metavar="", help='Site names, if backing up a '

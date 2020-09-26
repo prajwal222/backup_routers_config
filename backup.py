@@ -1,13 +1,13 @@
 from router_backup import RtrBackup
-from router_backup import logger_setup
+from router_backup import backup_logger
 import yaml
 import time
 from operator import itemgetter
 import sys
 import argparse
 
-logger = logger_setup('router_backup.log', '%(asctime)s: %(name)s: %(levelname)s: %(message)s', name="backuplog")
-
+time_stamp = time.strftime("%Y-%m-%d")
+backup_logger.info(f'\n\n**************************Script execution started at {time_stamp}**************************')
 
 parser = argparse.ArgumentParser(description='Save the current running config of the device in a file.\n'
                                              'Use a YAML file for host information')
@@ -34,7 +34,7 @@ with RtrBackup(testbed_yaml=topo_file) as backup:
             for site in sites:
                 host_list.extend(site['hosts'])
         except StopIteration as e:
-            logger.exception(f"Exception occurred. Please check site name. Skipping back up {e}")
+            backup_logger.exception(f"Exception occurred. Please check site name. Skipping back up {e}")
             sys.exit()
     else:
         host_list = testbed['all']['sites'][0]['hosts'] if not backup_host else None
@@ -52,4 +52,7 @@ with RtrBackup(testbed_yaml=topo_file) as backup:
             calender = time.strftime("%Y-%m-%d")  # Year Month Date
             if show_run:
                 backup.writer(show_run, calender, backup_path)
-            logger.info(f'Recent Backup for {dev} at {calender}')
+
+time_stamp = time.strftime("%Y-%m-%d")
+backup_logger.info(f'**************************Script execution completed at {time_stamp}**************************'
+                   f'\n\n')

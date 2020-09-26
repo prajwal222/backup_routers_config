@@ -62,6 +62,7 @@ class RtrBackup:
                 backup_logger.info(f"disconnecting from {host['host']}")
                 try:
                     alive_session.disconnect()
+                    self.connected_devices.remove(host)
                 except Exception as e:
                     backup_logger.exception(f"Exception '{e}' occurred. disconnect is unsuccessful for device {host}. "
                                             f"Skipping back up")
@@ -148,11 +149,12 @@ class RtrBackup:
                     'w') as the_file:
                 for line in result:
                     the_file.write(line + '\n')
+                backup_logger.info(f'Recent Backup for {self.hostname} at {date}')
             return True
         except FileNotFoundError:
             backup_logger.error(f'Backup directory not found. Please create the backup directory "{directory}". '
                                 f'Exiting!!')
-            sys.exit()
+            self.__exit__(None, None, None)
 
 
 # main

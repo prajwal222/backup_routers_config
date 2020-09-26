@@ -4,16 +4,45 @@ import yaml
 import time
 from operator import itemgetter
 import sys
+import argparse
 
 logger = logger_setup('router_backup.log', '%(asctime)s: %(name)s: %(levelname)s: %(message)s', name="backuplog")
-topo_file = sys.argv[1]
-backup_path = sys.argv[2]
+
+
+parser = argparse.ArgumentParser(description='Save the current running config of the device in a file.\n'
+                                             'Use a YAML file for host information')
+parser.add_argument("-t", "--topo", type=str, metavar="", help='Location of the topology YAML file')
+parser.add_argument("-l", "--loc", type=str, metavar="", help='Location of the backup folder')
+parser.add_argument("-H", "--host", type=str, nargs='+', metavar="", help='Hostnames, if backing up a '
+                                                                          'particular list of hosts')
+parser.add_argument("-s", "--site", type=str, nargs='+', metavar="", help='Site names, if backing up a '
+                                                                          'particular list of sites')
+args = parser.parse_args()
+topo_file = args.topo
+backup_path = args.loc
+backup_host = args.host
+backup_site = args.site
 
 with RtrBackup(testbed_yaml=topo_file) as backup:
     testbed = yaml.safe_load(open(topo_file))
-    host_list = testbed['all']['sites'][0]['hosts']
-    device_list = list(map(itemgetter('hostname'), host_list))
-    # device_list = ['N9k-Mgmt-SE-2']
+    if backup_site:
+        try:
+            sites = [item for item in testbed['all']['sites'] if item.get('name') in backup_site]
+            if not sites:
+                raise StopIteration
+            host_list = []
+            for site in sites:
+                host_list.extend(site['hosts'])
+        except StopIteration as e:
+            logger.exception(f"Exception occurred. Please check site name. Skipping back up {e}")
+            sys.exit()
+    else:
+        host_list = testbed['all']['sites'][0]['hosts'] if not backup_host else None
+
+    if host_list:
+        device_list = list(map(itemgetter('hostname'), host_list))
+    else:
+        device_list = backup_host
     for dev in device_list:
         connected = backup.login(dev)
         if connected:

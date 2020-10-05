@@ -107,7 +107,7 @@ class RtrBackup:
         self.session.disconnect()
 
     def get_command(self):
-        conf_dict = {'juniper_junos': 'show configuration | display-set | no-more',
+        conf_dict = {'juniper_junos': 'show configuration | display set | no-more',
                      'alcatel_sros': 'admin display-config'}
         get_conf_command = conf_dict.get(self.session.device_type)
         return get_conf_command or "show running-config"

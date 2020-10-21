@@ -6,7 +6,9 @@ import re
 from paramiko.ssh_exception import SSHException
 from netmiko.ssh_exception import AuthenticationException
 import logging
+from logging.handlers import RotatingFileHandler
 import sys
+from notify_email import failed_notify
 
 
 def logger_setup(filename, formatting, name="__main__"):
@@ -16,7 +18,7 @@ def logger_setup(filename, formatting, name="__main__"):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter(formatting)
-    file_handler = logging.FileHandler(filename)
+    file_handler = RotatingFileHandler(filename, maxBytes=2000, backupCount=10)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     return logger
@@ -42,6 +44,7 @@ class RtrBackup:
         self.current_device = ''
         self.connected_devices = []
         self.session = None
+        self.err_str = ''
 
     def __enter__(self):
         parsed_yaml = self._read_testbed_yaml(self.testbed_yaml)
@@ -73,6 +76,10 @@ class RtrBackup:
             yaml_content = yaml.safe_load(f.read())
         return yaml_content
 
+    def notify(self, text):
+        notification = f"{self.current_device} \n {text}"
+        failed_notify(notification)
+
     def login(self, device_name):
         """
         Logs in to the network device
@@ -81,7 +88,8 @@ class RtrBackup:
         try:
             device = next((item for item in self.host_dict if item.get('hostname') == device_name))
         except StopIteration:
-            backup_logger.exception(f"Exception occurred. Please check hostname \"{device_name}\". Skipping back up")
+            self.err_str = f"Exception occurred. Please check hostname \"{device_name}\". Skipping back up"
+            backup_logger.exception(self.err_str)
             return
         backup_logger.info(f"Logging into {device['host']}")
         hostname = device.pop("hostname")
@@ -94,9 +102,11 @@ class RtrBackup:
             self.connected_devices.append(device)
             logged_in = True
         except (AuthenticationException, SSHException) as e:
-            backup_logger.exception(f"Exception '{e}' occurred. "
-                                    f"SSH is unsuccessful for device {hostname}. Skipping back up")
+            self.err_str = f"Exception '{e}' occurred. " \
+                           f"SSH is unsuccessful for device {hostname}. Skipping back up"
+            backup_logger.exception(self.err_str)
             # sys.exit()
+
         return logged_in
         # self.session = ConnectHandler(**device)
 
@@ -156,8 +166,9 @@ class RtrBackup:
                 backup_logger.info(f'Recent Backup for {self.hostname} at {date}')
             return True
         except FileNotFoundError:
-            backup_logger.error(f'Backup directory not found. Please create the backup directory "{directory}". '
-                                f'Exiting!!')
+            self.err_str = f'Backup directory not found. Please create the backup directory "{directory}". ' \
+                      f'Exiting!!'
+            backup_logger.error(self.err_str)
             self.__exit__(None, None, None)
 
 

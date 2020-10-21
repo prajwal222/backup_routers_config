@@ -35,8 +35,9 @@ with RtrBackup(testbed_yaml=topo_file) as backup:
             for site in sites:
                 host_list.extend(site['hosts'])
         except StopIteration as e:
-            backup_logger.exception(f"Exception occurred. Please check site name \"{backup_site}\". "
-                                    f"Skipping back up {e}")
+            log_str = f"Exception occurred. Please check site name \"{backup_site}\". Skipping back up {e}"
+            backup_logger.exception(log_str)
+            backup.notify(log_str)
             sys.exit()
     else:
         host_list = testbed['all']['sites'][0]['hosts'] if not backup_host else None
@@ -54,6 +55,8 @@ with RtrBackup(testbed_yaml=topo_file) as backup:
             calender = time.strftime("%Y-%m-%d")  # Year Month Date
             if show_run:
                 backup.writer(show_run, calender, backup_path)
+        if backup.err_str:
+            backup.notify(backup.err_str)
 
 time_stamp = time.strftime("%Y-%m-%d")
 backup_logger.info(f'**************************Script execution completed at {time_stamp}**************************'

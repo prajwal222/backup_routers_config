@@ -170,6 +170,11 @@ class RtrBackup:
                       f'Exiting!!'
             backup_logger.error(self.err_str)
             self.__exit__(None, None, None)
+        except PermissionError:
+            self.err_str = f'User does not have permission to write on the directory "{directory}". ' \
+                           f'Exiting!!'
+            backup_logger.error(self.err_str)
+            self.__exit__(None, None, None)
 
 
 # main

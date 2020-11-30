@@ -1,0 +1,6 @@
+SERVER:
+FROM:
+TO:
+  - user1@exapmple.com
+  - user2@example.com
+  - user3@example.com

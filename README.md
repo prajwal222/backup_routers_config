@@ -17,7 +17,7 @@ optional arguments:
                         Site names, if backing up a particular list of sites
                         
 Sample Topology file:
-
+```
 all:
   vars:
     username: admin
@@ -50,3 +50,4 @@ all:
           host: 10.225.254.228
           device_type: cisco_xe
           secret: jnpr16
+  ```
